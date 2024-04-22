@@ -7,42 +7,42 @@ using TMPro;
 
 public class InGame : MonoBehaviour
 {
-    private enum GameProgress
-    {
-        None = 0,
-        Ready = 1,
+	private enum GameProgress
+	{
+		None = 0,
+		Ready = 1,
 		StartRound = 2,
-        EndRound = 3,
-        Result = 4,
+		EndRound = 3,
+		Result = 4,
 		GameOver = 5,
-        Disconnect = 6
-    }
+		Disconnect = 6
+	}
 
-    private enum ClientType
-    {
-        Local = 0,
-        Remote = 1,
-    }
+	private enum ClientType
+	{
+		Local = 0,
+		Remote = 1,
+	}
 
-    private enum Turn
-    {
-        Own = 0,
-        Opponent = 1,
-    }
+	private enum Turn
+	{
+		Own = 0,
+		Opponent = 1,
+	}
 
-    private enum Colors
-    {
-        Black = 0,
-        White = 1,
-    }
+	private enum Colors
+	{
+		Black = 0,
+		White = 1,
+	}
 
-    private enum Winner
-    {
-        None = 0,
-        Own = 1,
-        Opponent = 2,
-        Tie = 3,
-    }
+	private enum Winner
+	{
+		None = 0,
+		Own = 1,
+		Opponent = 2,
+		Tie = 3,
+	}
 
 	#region UI Variables
 	[SerializeField] private TextMeshProUGUI ProgressText;
@@ -64,7 +64,7 @@ public class InGame : MonoBehaviour
 	private int TurnCount;
 	private float StepCount = 0;
 	// 턴 진행시 대기 시간 할당용 변수
-    private float RemainTime = 0f;
+	private float RemainTime = 0f;
 	// 시합 시작 전의 신호표시 시간.
 	private const float WaitTime = 50.0f;
 	// 대기 시간.
@@ -73,10 +73,13 @@ public class InGame : MonoBehaviour
 
 	#region Server Variables
 	private NetworkManager network = null;
-    private ClientType local;
-    private ClientType remote;
-    private ClientType turn;
+	private ClientType local;
+	private ClientType remote;
+	private ClientType turn;
 	private ClientType before;
+
+	private int localWin = 0;
+	private int remoteWin = 0;
 	#endregion
 
 	// 진행 상황.
@@ -87,27 +90,27 @@ public class InGame : MonoBehaviour
 	private bool isGameOver;
 	private bool isFirst;
 
-    private static InGame inGame;
-    public static InGame _InGame
-    {
-        get
-        {
-            if(inGame == null)
-            {
-                inGame = FindObjectOfType<InGame>();
-            }
-            return inGame;
-        }
-    }
+	private static InGame inGame;
+	public static InGame _InGame
+	{
+		get
+		{
+			if (inGame == null)
+			{
+				inGame = FindObjectOfType<InGame>();
+			}
+			return inGame;
+		}
+	}
 
 	private void Start()
 	{
 		GameObject _network = GameObject.Find("NetworkManager");
-        network = _network.GetComponent<NetworkManager>();
-        if(network != null )
-        {
+		network = _network.GetComponent<NetworkManager>();
+		if (network != null)
+		{
 			network.RegisterEventHandler(EventCallback);
-        }
+		}
 
 		ResetGame();
 		isGameOver = false;
@@ -134,30 +137,30 @@ public class InGame : MonoBehaviour
 	}
 
 	public void GameStart()
-    {
-        progress = GameProgress.Ready;
-        turn = ClientType.Local;
-        before = ClientType.Local;
+	{
+		progress = GameProgress.Ready;
+		turn = ClientType.Local;
+		before = ClientType.Local;
 
-        if(network.IsServer() == true)
-        {
-            local = ClientType.Local;
-            remote = ClientType.Remote;
-        }
-        else
-        {
-            local = ClientType.Remote;
-            remote = ClientType.Local;
-        }
+		if (network.IsServer() == true)
+		{
+			local = ClientType.Local;
+			remote = ClientType.Remote;
+		}
+		else
+		{
+			local = ClientType.Remote;
+			remote = ClientType.Local;
+		}
 
 		pBeforeColor = 0;
 		oBeforeColor = 0;
 
-        Debug.Log($"This Client Type : {local.ToString()}");
+		Debug.Log($"This Client Type : {local.ToString()}");
 
-        isGameOver = false;
-        winner = Winner.None;
-    }
+		isGameOver = false;
+		winner = Winner.None;
+	}
 
 	private void UpdateReady()
 	{
@@ -185,7 +188,7 @@ public class InGame : MonoBehaviour
 		ProgressText.text = $"Start Round : {RoundCount}";
 		Debug.Log($"{RoundCount}라운드 시작 :{turn}");
 		bool SetClient = false;
-		if(TurnCount == 0)
+		if (TurnCount == 0)
 		{
 			isFirst = true;
 			if (before == local)
@@ -233,7 +236,7 @@ public class InGame : MonoBehaviour
 
 		// 턴을 갱신합니다.
 		Debug.Log($"라운드 갱신 :{turn}");
-		if(TurnCount == 2)
+		if (TurnCount == 2)
 		{
 			progress = GameProgress.EndRound;
 		}
@@ -242,6 +245,16 @@ public class InGame : MonoBehaviour
 	private void UpdateData()
 	{
 		// 각 클라이언트 별 숫자 받고, 대조해 라운드 승리자 조회
+		int ClientNum = PlayerManager.Instance.ReturnPlayerCard().Number;
+		int RemoteNum = PlayerManager.Instance.ReturnCardNumber();
+		if (ClientNum > RemoteNum || (ClientNum == 0 && RemoteNum == 7))
+		{
+			localWin = localWin + 1;
+		}
+		if(RemoteNum > ClientNum || (ClientNum == 7 && RemoteNum == 0))
+		{
+			remoteWin = remoteWin + 1;
+		}
 		// brfore을 해당 라운드 승리자로 바꿔줄 것
 		progress = GameProgress.StartRound;
 	}
@@ -263,7 +276,7 @@ public class InGame : MonoBehaviour
 		int index = 0;
 		if (!isFirst)
 		{
-			index = PlayerManager.Instance.ReturnCard().Color;
+			index = PlayerManager.Instance.ReturnCardColor();
 			OtherSetCard.sprite = BCardImages[index];
 			Debug.Log($"DoOppnentTurn, index:{index}");
 
@@ -273,6 +286,8 @@ public class InGame : MonoBehaviour
 				return false;
 			}
 		}
+
+		PlayerManager.Instance._myPlayer.ShowHand();
 
 		RemainTime -= Time.deltaTime;
 		if (RemainTime <= 0.0f)
@@ -289,16 +304,16 @@ public class InGame : MonoBehaviour
 				return false;
 			}
 
-			pBeforeColor = PlayerManager.Instance.ReturnCard().Color;
-
+			PlayerManager.Instance._myPlayer.ShowHand(false);
+			pBeforeColor = PlayerManager.Instance.ReturnPlayerCard().Color;
 			PlayerSetCardImage.sprite = FCardImages[pBeforeColor];
-			PlayerSetCardText.text = $"{PlayerManager.Instance.ReturnCard().Number}";
+			PlayerSetCardText.text = $"{PlayerManager.Instance.ReturnPlayerCard().Number}";
 			if (pBeforeColor == 1) PlayerSetCardText.color = new Vector4(0, 0, 0, 1);
 			else if (pBeforeColor == 0) PlayerSetCardText.color = Vector4.one;
 		}
 
 		C_MoveStone movePacket = new C_MoveStone();
-		if (local == ClientType.Local);
+		if (local == ClientType.Local) ;
 		else;
 
 		network.Send(movePacket.Write());
@@ -311,23 +326,20 @@ public class InGame : MonoBehaviour
 	public bool DoOppnentTurn()
 	{
 		int index = 0;
-		if (!isFirst)
-		{
-			index = PlayerManager.Instance.ReturnCard().Color;
-			OtherSetCard.sprite = BCardImages[index];
-			Debug.Log($"DoOppnentTurn, index:{index}");
+		index = PlayerManager.Instance.ReturnCardColor();
+		OtherSetCard.sprite = BCardImages[index];
+		Debug.Log($"DoOppnentTurn, index:{index}");
 
-			if (index <= 0)
-			{
-				Debug.Log($"수신된 값 : {index}");
-				return false;
-			}
+		if (index <= 0)
+		{
+			Debug.Log($"수신된 값 : {index}");
+			return false;
 		}
 
+		PlayerManager.Instance._myPlayer.ShowHand(false);
 		ClientType thisClient = (network.IsServer() == true) ? ClientType.Remote : ClientType.Local;
 		Debug.Log("수신");
 
-		// 수신한 정보를 선택된 칸으로 변환합니다. 
 		Debug.Log("Recv:" + index + " [" + network.IsServer() + "]");
 
 		TurnCount = TurnCount + 1;
@@ -341,6 +353,15 @@ public class InGame : MonoBehaviour
 		progress = GameProgress.None;
 		StepCount = 0f;
 		RoundCount = 0;
+
+		localWin = 0;
+		remoteWin = 0;
+	}
+
+	// 게임 종료 체크.
+	public bool IsGameOver()
+	{
+		return isGameOver;
 	}
 
 	// 이벤트 발생 시의 콜백 함수.

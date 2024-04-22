@@ -2,25 +2,46 @@ using DummyClient;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static DummyClient.S_PlayerList;
 
 public class PlayerManager
 {
 	public static PlayerManager Instance { get; } = new PlayerManager();
-	public Player _myPlayer;
-    int CardColor;
+	public MyPlayer _myPlayer;
+    int OtherCardColor;
+    int OtherCardNumber;
 
     Dictionary<int, Player> _players = new Dictionary<int, Player>();
 
-    public void BroadcastCard()
+    public void CastCard(S_SetOtherCardColor cardColor)
     {
-
+		OtherCardColor = cardColor.select;
     }
 
-    public CardData ReturnCard()
+	public void CastCard(S_SetOtherCardNumber cardNumber)
+	{
+		OtherCardColor = cardNumber.select;
+	}
+
+	public int ReturnCardColor()
+	{
+		int CardColor = OtherCardColor;
+		OtherCardColor = -1;
+		return CardColor;
+	}
+
+	public int ReturnCardNumber()
+	{
+		int CardNumber = OtherCardNumber;
+		OtherCardNumber = -1;
+		return CardNumber;
+	}
+
+	public CardData ReturnPlayerCard()
     {
 		CardData SelectCardData = new CardData();
-		SelectCardData.Number = _myPlayer.CardNum;
-		SelectCardData.Color = _myPlayer.CardColor;
+		_myPlayer.CardNum = -1;
+		_myPlayer.CardColor = -1;
 		return SelectCardData;
     }
 
@@ -37,19 +58,21 @@ public class PlayerManager
 			{
 				MyPlayer myPlayer = go.AddComponent<MyPlayer>();
 				myPlayer.PlayerID = p.playerId;
+				myPlayer.CardNum = -1;
+				myPlayer.CardColor = -1;
 				myPlayer.transform.position = new Vector3(0, -1, 0);
+				myPlayer.SettingCardHand();
+				myPlayer.ShowHand();
 				_myPlayer = myPlayer;
-				_myPlayer.ShowHand();
-				_myPlayer.WinCount = 0;
 			}
 			else
 			{
-				Player player = go.AddComponent<Player>();
+				Player player = go.GetComponent<Player>();
 				player.PlayerID = p.playerId;
+				player.CardNum = -1;
+				player.CardColor = -1;
 				player.transform.position = new Vector3(0, 1, 0);
 				_players.Add(p.playerId, player);
-				_players[p.playerId].ShowHand(false);
-				_players[p.playerId].WinCount = 0;
 			}
 		}
 	}
