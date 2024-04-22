@@ -18,6 +18,13 @@ public class NetworkManager : MonoBehaviour
 	public delegate void EventHandler(NetEventState state);
 	private EventHandler m_handler;
 
+	private void Update()
+	{
+		List<IPacket> list = PacketQueue.Instance.PopAll();
+		foreach (IPacket packet in list)
+			PacketManager.Instance.HandlePacket(_session, packet);
+	}
+
 	// 이벤트 함수 등록.
 	public void RegisterEventHandler(EventHandler handler)
 	{
@@ -32,7 +39,6 @@ public class NetworkManager : MonoBehaviour
 
 	// 세션 1개만 사용 예정이므로, SessionManager 미사용
 	ServerSession _session = new ServerSession();
-
 
 	// 컨텐츠단 데이터 전송!
 	public void Send(ArraySegment<byte> sendBuff)
@@ -83,19 +89,5 @@ public class NetworkManager : MonoBehaviour
 	public bool IsConnected()
 	{
 		return m_isConnected;
-	}
-
-
-
-
-	void Start()
-	{
-
-	}
-	void Update()
-	{
-		List<IPacket> list = PacketQueue.Instance.PopAll();
-		foreach (IPacket packet in list)
-			PacketManager.Instance.HandlePacket(_session, packet);
 	}
 }

@@ -54,8 +54,8 @@ MonoBehaviour:
     Number: 0
     Color: 0
   CardImages:
-  - {fileID: 21300000, guid: b5e3cc79de94dc540a43b7e2cab39c01, type: 3}
-  - {fileID: 21300000, guid: 83d5bb5649cd6cd4d8a9dd346897423b, type: 3}
+  - {fileID: 24304622, guid: 29c7bcecbab40b84c88ed82800019f3a, type: 3}
+  - {fileID: 1853841036, guid: 29c7bcecbab40b84c88ed82800019f3a, type: 3}
 --- !u!1 &2486219659272469178
 GameObject:
   m_ObjectHideFlags: 0

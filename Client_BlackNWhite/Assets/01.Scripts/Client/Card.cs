@@ -42,8 +42,8 @@ public class Card : MonoBehaviour
 	public void SetUI()
 	{
 		CardText.text = $"{Data.Number}";
-		if(Data.Color == 1) CardText.color = Color.black;
-		else if(Data.Color == 1) CardText.color = Color.white;
+		if(Data.Color == 1) CardText.color = new Vector4(0,0,0,1);
+		else if(Data.Color == 0) CardText.color = Vector4.one;
 		CardImage.sprite = CardImages[Data.Color];
 	}
 
