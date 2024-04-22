@@ -2,8 +2,8 @@ using DummyClient;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEditor.VersionControl.Asset;
+using UnityEngine.UI;
+using TMPro;
 
 public class InGame : MonoBehaviour
 {
@@ -44,7 +44,21 @@ public class InGame : MonoBehaviour
         Tie = 3,
     }
 
+	#region UI Variables
+	[SerializeField] private TextMeshProUGUI ProgressText;
+	[SerializeField] private Image OtherSetCard;
+	[SerializeField] private Image PlayerSetCardImage;
+	[SerializeField] private TextMeshProUGUI PlayerSetCardText;
 
+	public List<Sprite> FCardImages;
+	public List<Sprite> BCardImages;
+	public List<Sprite> OCardImages;
+
+	private int pBeforeColor = -1;
+	private int oBeforeColor = -1;
+	#endregion
+
+	#region Unity Variables
 	// 턴 세기용 변수
 	private int RoundCount;
 	private int TurnCount;
@@ -55,18 +69,20 @@ public class InGame : MonoBehaviour
 	private const float WaitTime = 50.0f;
 	// 대기 시간.
 	private const float TurnTime = 30.0f;
+	#endregion
 
-    private NetworkManager network = null;
+	#region Server Variables
+	private NetworkManager network = null;
     private ClientType local;
     private ClientType remote;
     private ClientType turn;
 	private ClientType before;
+	#endregion
 
 	// 진행 상황.
 	private GameProgress progress;
 	private Winner winner;
 
-	private Coroutine TimerCoroutine;
 	private float currentTime;
 	private bool isGameOver;
 	private bool isFirst;
@@ -105,7 +121,6 @@ public class InGame : MonoBehaviour
 			case GameProgress.Ready:
 				UpdateReady();
 				break;
-
 			case GameProgress.StartRound:
 				UpdateRound();
 				break;
@@ -135,6 +150,9 @@ public class InGame : MonoBehaviour
             remote = ClientType.Local;
         }
 
+		pBeforeColor = 0;
+		oBeforeColor = 0;
+
         Debug.Log($"This Client Type : {local.ToString()}");
 
         isGameOver = false;
@@ -145,7 +163,7 @@ public class InGame : MonoBehaviour
 	{
 		// 시합 시작 신호 표시를 기다립니다.
 		currentTime += Time.deltaTime;
-		//Debug.Log("UpdateReady");
+		ProgressText.text = "Waiting to Start";
 
 		if (currentTime > WaitTime)
 		{
@@ -159,7 +177,12 @@ public class InGame : MonoBehaviour
 		RoundCount = RoundCount + 1;
 		TurnCount = 0;
 		turn = before;
+
+		PlayerSetCardImage.sprite = OCardImages[pBeforeColor];
+		OtherSetCard.sprite = OCardImages[oBeforeColor];
+
 		RemainTime = TurnTime;
+		ProgressText.text = $"Start Round : {RoundCount}";
 		Debug.Log($"{RoundCount}라운드 시작 :{turn}");
 		bool SetClient = false;
 		if(TurnCount == 0)
@@ -238,9 +261,10 @@ public class InGame : MonoBehaviour
 	public bool DoOwnTurn()
 	{
 		int index = 0;
-		if (isFirst)
+		if (!isFirst)
 		{
-			index = PlayerManager.Instance.ReturnCardColor();
+			index = PlayerManager.Instance.ReturnCard().Color;
+			OtherSetCard.sprite = BCardImages[index];
 			Debug.Log($"DoOppnentTurn, index:{index}");
 
 			if (index <= 0)
@@ -259,7 +283,18 @@ public class InGame : MonoBehaviour
 		}
 		else
 		{
-			
+			bool isSetCard = PlayerManager.Instance._myPlayer.IsSetCard;
+			if (isSetCard == false)
+			{
+				return false;
+			}
+
+			pBeforeColor = PlayerManager.Instance.ReturnCard().Color;
+
+			PlayerSetCardImage.sprite = FCardImages[pBeforeColor];
+			PlayerSetCardText.text = $"{PlayerManager.Instance.ReturnCard().Number}";
+			if (pBeforeColor == 1) PlayerSetCardText.color = new Vector4(0, 0, 0, 1);
+			else if (pBeforeColor == 0) PlayerSetCardText.color = Vector4.one;
 		}
 
 		C_MoveStone movePacket = new C_MoveStone();
@@ -276,9 +311,10 @@ public class InGame : MonoBehaviour
 	public bool DoOppnentTurn()
 	{
 		int index = 0;
-		if (isFirst)
+		if (!isFirst)
 		{
-			index = PlayerManager.Instance.ReturnCardColor();
+			index = PlayerManager.Instance.ReturnCard().Color;
+			OtherSetCard.sprite = BCardImages[index];
 			Debug.Log($"DoOppnentTurn, index:{index}");
 
 			if (index <= 0)

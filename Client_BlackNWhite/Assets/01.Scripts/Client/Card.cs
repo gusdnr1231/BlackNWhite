@@ -15,8 +15,8 @@ public class Card : MonoBehaviour
 {
 	private Player Owner;
 
-    private Image CardImage;
-    private TextMeshProUGUI CardText;
+	private Image CardImage;
+	private TextMeshProUGUI CardText;
 
 	public CardData Data;
 	public Sprite[] CardImages;
@@ -34,7 +34,7 @@ public class Card : MonoBehaviour
 
 	public void SetData(int number, int color)
 	{
-		Data.Number	= number;
+		Data.Number = number;
 		Data.Color = color;
 		SetUI();
 	}
@@ -42,15 +42,18 @@ public class Card : MonoBehaviour
 	public void SetUI()
 	{
 		CardText.text = $"{Data.Number}";
-		if(Data.Color == 1) CardText.color = new Vector4(0,0,0,1);
-		else if(Data.Color == 0) CardText.color = Vector4.one;
+		if (Data.Color == 1) CardText.color = new Vector4(0, 0, 0, 1);
+		else if (Data.Color == 0) CardText.color = Vector4.one;
 		CardImage.sprite = CardImages[Data.Color];
 	}
 
 	public void SettingCard()
 	{
-		Owner.SetCard(Data);
-		Owner.Cards.Remove(this);
-		Destroy(gameObject);
+		if (Owner.IsSetCard == false)
+		{
+			Owner.SetCard(Data);
+			Owner.Cards.Remove(this);
+			Destroy(gameObject);
+		}
 	}
 }

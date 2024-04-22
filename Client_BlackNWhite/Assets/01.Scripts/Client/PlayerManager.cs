@@ -2,25 +2,14 @@ using DummyClient;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static DummyClient.S_PlayerList;
 
 public class PlayerManager
 {
-
 	public static PlayerManager Instance { get; } = new PlayerManager();
-
-	Player _myPlayer;
-    CardData SelectCardData;
+	public Player _myPlayer;
     int CardColor;
 
     Dictionary<int, Player> _players = new Dictionary<int, Player>();
-
-    public int ReturnCardColor()
-    {
-        int returnColor = CardColor;
-        CardColor = -1;
-        return returnColor;
-    }
 
     public void BroadcastCard()
     {
@@ -29,7 +18,10 @@ public class PlayerManager
 
     public CardData ReturnCard()
     {
-        return SelectCardData;
+		CardData SelectCardData = new CardData();
+		SelectCardData.Number = _myPlayer.CardNum;
+		SelectCardData.Color = _myPlayer.CardColor;
+		return SelectCardData;
     }
 
 	// 플레이어 리스트 생성&갱신
@@ -43,17 +35,21 @@ public class PlayerManager
 
 			if (p.isSelf)
 			{
-				Player myPlayer = go.AddComponent<Player>();
+				MyPlayer myPlayer = go.AddComponent<MyPlayer>();
 				myPlayer.PlayerID = p.playerId;
-				myPlayer.transform.position = new Vector3(0, 5, 0);
+				myPlayer.transform.position = new Vector3(0, -1, 0);
 				_myPlayer = myPlayer;
+				_myPlayer.ShowHand();
+				_myPlayer.WinCount = 0;
 			}
 			else
 			{
 				Player player = go.AddComponent<Player>();
 				player.PlayerID = p.playerId;
-				player.transform.position = new Vector3(0, 0, 0);
+				player.transform.position = new Vector3(0, 1, 0);
 				_players.Add(p.playerId, player);
+				_players[p.playerId].ShowHand(false);
+				_players[p.playerId].WinCount = 0;
 			}
 		}
 	}
