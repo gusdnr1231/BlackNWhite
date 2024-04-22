@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class PlayerManager
 {
-    Player _myPlayer;
-    int CardNum;
+
+	public static PlayerManager Instance { get; } = new PlayerManager();
+
+	Player _myPlayer;
+    CardData SelectCardData;
     int CardColor;
 
     Dictionary<int, Player> _players = new Dictionary<int, Player>();
@@ -16,9 +19,9 @@ public class PlayerManager
 
     }
 
-    public int ReturnCard()
+    public CardData ReturnCard()
     {
-        return CardNum;
+        return SelectCardData;
     }
 
     public void AddPlayer()

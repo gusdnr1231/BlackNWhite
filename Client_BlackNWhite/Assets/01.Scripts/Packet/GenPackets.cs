@@ -15,6 +15,7 @@ namespace DummyClient
         S_PlayerList = 4,
 
         C_MoveStone = 5,
+        S_MoveStone = 5,
         S_BroadCastStone = 6,
     }
 
@@ -25,38 +26,73 @@ namespace DummyClient
         ArraySegment<byte> Write();
     }
 
-    public class C_MoveStone : IPacket
-    {
-        public int StonePosition;
-        public ushort Protocol { get { return (ushort)PacketID.C_MoveStone; } }
+	public class C_MoveStone : IPacket
+	{
+		public int select;      // 선택정보
+		public int destinationId;    // 목적지id
+		public ushort Protocol { get { return (ushort)PacketID.C_MoveStone; } }
 
-        public void Read(ArraySegment<byte> segment)
-        {
-            ushort count = 0;
-            count += sizeof(ushort);
-            count += sizeof(ushort);
-            this.StonePosition = BitConverter.ToInt32(segment.Array, segment.Offset + count);
-            count += sizeof(int);
-        }
+		public void Read(ArraySegment<byte> segment)
+		{
+			ushort count = 0;
+			count += sizeof(ushort);
+			count += sizeof(ushort);
+			this.select = BitConverter.ToInt32(segment.Array, segment.Offset + count);
+			count += sizeof(int);
+			this.destinationId = BitConverter.ToInt32(segment.Array, segment.Offset + count);
+			count += sizeof(int);
+		}
 
-        public ArraySegment<byte> Write()
-        {
-            ArraySegment<byte> segment = SendBufferHelper.Open(4096);
-            ushort count = 0;
+		public ArraySegment<byte> Write()
+		{
+			ArraySegment<byte> segment = SendBufferHelper.Open(4096);
+			ushort count = 0;
 
-            count += sizeof(ushort);
-            Array.Copy(BitConverter.GetBytes((ushort)PacketID.C_MoveStone), 0, segment.Array, segment.Offset + count, sizeof(ushort));
-            count += sizeof(ushort);
-            Array.Copy(BitConverter.GetBytes(this.StonePosition), 0, segment.Array, segment.Offset + count, sizeof(int));
-            count += sizeof(int);
+			count += sizeof(ushort);
+			Array.Copy(BitConverter.GetBytes((ushort)PacketID.C_MoveStone), 0, segment.Array, segment.Offset + count, sizeof(ushort));
+			count += sizeof(ushort);
+			Array.Copy(BitConverter.GetBytes(this.select), 0, segment.Array, segment.Offset + count, sizeof(int));
+			count += sizeof(int);
+			Array.Copy(BitConverter.GetBytes(this.destinationId), 0, segment.Array, segment.Offset + count, sizeof(int));
+			count += sizeof(int);
 
-            Array.Copy(BitConverter.GetBytes(count), 0, segment.Array, segment.Offset, sizeof(ushort));
+			Array.Copy(BitConverter.GetBytes(count), 0, segment.Array, segment.Offset, sizeof(ushort));
 
-            return SendBufferHelper.Close(count);
-        }
-    }
+			return SendBufferHelper.Close(count);
+		}
+	}
+	public class S_MoveStone : IPacket
+	{
+		public int select;      // 선택정보
+		public ushort Protocol { get { return (ushort)PacketID.S_MoveStone; } }
 
-    public class S_BroadCastStone : IPacket
+		public void Read(ArraySegment<byte> segment)
+		{
+			ushort count = 0;
+			count += sizeof(ushort);
+			count += sizeof(ushort);
+			this.select = BitConverter.ToInt32(segment.Array, segment.Offset + count);
+			count += sizeof(int);
+		}
+
+		public ArraySegment<byte> Write()
+		{
+			ArraySegment<byte> segment = SendBufferHelper.Open(4096);
+			ushort count = 0;
+
+			count += sizeof(ushort);
+			Array.Copy(BitConverter.GetBytes((ushort)PacketID.S_MoveStone), 0, segment.Array, segment.Offset + count, sizeof(ushort));
+			count += sizeof(ushort);
+			Array.Copy(BitConverter.GetBytes(this.select), 0, segment.Array, segment.Offset + count, sizeof(int));
+			count += sizeof(int);
+
+			Array.Copy(BitConverter.GetBytes(count), 0, segment.Array, segment.Offset, sizeof(ushort));
+
+			return SendBufferHelper.Close(count);
+		}
+	}
+
+	public class S_BroadCastStone : IPacket
     {
         public int StonePosition;
         public ushort Protocol { get { return (ushort)PacketID.S_BroadCastStone; } }
@@ -86,7 +122,6 @@ namespace DummyClient
             return SendBufferHelper.Close(count);
         }
     }
-
 
     public class S_BroadcastEnterGame : IPacket
     {
