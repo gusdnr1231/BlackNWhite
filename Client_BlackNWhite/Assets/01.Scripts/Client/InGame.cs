@@ -12,11 +12,10 @@ public class InGame : MonoBehaviour
         None = 0,
         Ready = 1,
 		StartRound = 2,
-        Turn = 3,
-        EndRound = 4,
-        Result = 5,
-		GameOver = 6,
-        Disconnect = 7
+        EndRound = 3,
+        Result = 4,
+		GameOver = 5,
+        Disconnect = 6
     }
 
     private enum ClientType
@@ -70,6 +69,7 @@ public class InGame : MonoBehaviour
 	private Coroutine TimerCoroutine;
 	private float currentTime;
 	private bool isGameOver;
+	private bool isFirst;
 
     private static InGame inGame;
     public static InGame _InGame
@@ -164,6 +164,7 @@ public class InGame : MonoBehaviour
 		bool SetClient = false;
 		if(TurnCount == 0)
 		{
+			isFirst = true;
 			if (before == local)
 			{
 				SetClient = DoOwnTurn();  // 내턴 입력
@@ -175,6 +176,7 @@ public class InGame : MonoBehaviour
 		}
 		else if (TurnCount == 1)
 		{
+			isFirst = false;
 			turn = (turn == ClientType.Local) ? ClientType.Remote : ClientType.Local;
 			if (turn == local)
 			{
@@ -192,7 +194,7 @@ public class InGame : MonoBehaviour
 		}
 		else
 		{
-			//기호가 놓이는 사운드 효과를 냅니다. 
+			// 카드가 놓이는 사운드 효과를 냅니다. 
 		}
 
 		if (winner != Winner.None)
@@ -236,6 +238,17 @@ public class InGame : MonoBehaviour
 	public bool DoOwnTurn()
 	{
 		int index = 0;
+		if (isFirst)
+		{
+			index = PlayerManager.Instance.ReturnCardColor();
+			Debug.Log($"DoOppnentTurn, index:{index}");
+
+			if (index <= 0)
+			{
+				Debug.Log($"수신된 값 : {index}");
+				return false;
+			}
+		}
 
 		RemainTime -= Time.deltaTime;
 		if (RemainTime <= 0.0f)
@@ -246,41 +259,12 @@ public class InGame : MonoBehaviour
 		}
 		else
 		{
-			// 마우스의 왼쪽 버튼의 눌린 상태를 감시합니다.
-			bool isClicked = Input.GetMouseButtonDown(0);
-			if (isClicked == false)
-			{
-				// 눌려지지 않았으므로 아무것도 하지 않지 않습니다.
-				return false;
-			}
-
-			Vector3 pos = Input.mousePosition;
-			Debug.Log("POS:" + pos.x + ", " + pos.y + ", " + pos.z);
-
-			// 수신한 정보를 바탕으로 선택된 칸으로 변환합니다.
-			Debug.Log($"클릭 변환값 : {index}");
-			if (index < 0)
-			{
-				// 범위 밖이 선택되었습니다.
-				return false;
-			}
-		}
-
-		// 칸에 둡니다.
-		bool ret = SetMarkToSpace(index, localMark);
-		if (ret == false)
-		{
-			// 둘 수 없습니다.
-			return false;
+			
 		}
 
 		C_MoveStone movePacket = new C_MoveStone();
-		movePacket.select = index;      // 선택값
-										// 목적지id 구분
-		if (local == ClientType.Local)    // 서버인경우
-			movePacket.destinationId = (int)Mark.Cross + 1;
-		else
-			movePacket.destinationId = (int)Mark.Circle + 1;
+		if (local == ClientType.Local);
+		else;
 
 		network.Send(movePacket.Write());
 
@@ -291,32 +275,24 @@ public class InGame : MonoBehaviour
 	// 상대의 턴일 때의 처리.
 	public bool DoOppnentTurn()
 	{
-		// 상대의 정보를 수신합니다.
-		int index = PlayerManager.Instance.returnStone();
-		Debug.Log($"DoOppnentTurn, index:{index}");
-
-		if (index <= 0)
+		int index = 0;
+		if (isFirst)
 		{
-			// 아직 수신되지 않았습니다.
-			Debug.Log($"수신된 값 : {index}");
-			return false;
+			index = PlayerManager.Instance.ReturnCardColor();
+			Debug.Log($"DoOppnentTurn, index:{index}");
+
+			if (index <= 0)
+			{
+				Debug.Log($"수신된 값 : {index}");
+				return false;
+			}
 		}
 
-		// 서버라면 ○ 클라이언트라면 ×를 지정합니다.
 		ClientType thisClient = (network.IsServer() == true) ? ClientType.Remote : ClientType.Local;
 		Debug.Log("수신");
 
 		// 수신한 정보를 선택된 칸으로 변환합니다. 
 		Debug.Log("Recv:" + index + " [" + network.IsServer() + "]");
-
-		// 칸에 둡니다.
-		bool ret = SetMarkToSpace(index, remoteMark);
-		if (ret == false)
-		{
-			// 둘 수 없다.
-			Debug.Log("둘수없다.");
-			return false;
-		}
 
 		TurnCount = TurnCount + 1;
 		return true;
@@ -330,22 +306,6 @@ public class InGame : MonoBehaviour
 		StepCount = 0f;
 		RoundCount = 0;
 	}
-
-	private IEnumerator Timer(float TimerTime)
-    {
-        currentTime = TimerTime;
-        while (currentTime > 0)
-        {
-            yield return new WaitForSeconds(1f);
-            currentTime -= 1;
-        }
-        
-        if(currentTime <= 0)
-        {
-            winner = Winner.Opponent;
-            progress = GameProgress.Turn;
-        }
-    }
 
 	// 이벤트 발생 시의 콜백 함수.
 	public void EventCallback(NetEventState state)

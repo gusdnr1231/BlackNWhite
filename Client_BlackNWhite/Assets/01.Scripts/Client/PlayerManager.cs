@@ -14,6 +14,13 @@ public class PlayerManager
 
     Dictionary<int, Player> _players = new Dictionary<int, Player>();
 
+    public int ReturnCardColor()
+    {
+        int returnColor = CardColor;
+        CardColor = -1;
+        return returnColor;
+    }
+
     public void BroadcastCard()
     {
 
