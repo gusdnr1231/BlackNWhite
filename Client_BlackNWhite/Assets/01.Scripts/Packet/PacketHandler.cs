@@ -30,17 +30,24 @@ namespace DummyClient
             ServerSession serverSession = session as ServerSession;
 
         }
-       
 
+		public static void S_SetOtherCardHandler(PacketSession session, IPacket packet)
+		{
+			S_SetOtherCard pkt = packet as S_SetOtherCard;
+			ServerSession serverSession = session as ServerSession;
 
-        public static void S_BroadCastStoneHandler(PacketSession session, IPacket packet)
+            PlayerManager.Instance.SetCard(pkt);
+		}
+
+		public static void S_BroadCastRoundHandler(PacketSession session, IPacket packet)
         {
-            S_BroadCastStone pkt = packet as S_BroadCastStone;
+            S_BroadCastRound pkt = packet as S_BroadCastRound;
             ServerSession serverSession = session as ServerSession;
 
+            
         }
 
-    }
+	}
 }
 
 

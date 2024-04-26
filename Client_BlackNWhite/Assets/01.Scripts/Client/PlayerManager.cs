@@ -8,20 +8,16 @@ public class PlayerManager
 {
 	public static PlayerManager Instance { get; } = new PlayerManager();
 	public MyPlayer _myPlayer;
-    int OtherCardColor;
-    int OtherCardNumber;
+    public int OtherCardColor { get; set;}
+    public int OtherCardNumber { get; set;}
 
     Dictionary<int, Player> _players = new Dictionary<int, Player>();
 
-    public void CastCard(S_SetOtherCardColor cardColor)
+    public void SetCard(S_SetOtherCard cardData)
     {
-		OtherCardColor = cardColor.select;
+		OtherCardNumber = cardData.selectNum;
+		OtherCardColor = cardData.selectCol;
     }
-
-	public void CastCard(S_SetOtherCardNumber cardNumber)
-	{
-		OtherCardColor = cardNumber.select;
-	}
 
 	public int ReturnCardColor()
 	{

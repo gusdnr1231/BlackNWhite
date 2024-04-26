@@ -10,16 +10,16 @@ namespace Server {
     class PacketHandler 
     {
         // 돌 놓는거
-        public static void C_MoveStoneHandler(PacketSession session, IPacket packet)
+        public static void C_SetCardHandler(PacketSession session, IPacket packet)
         {
-            C_MoveStone movePacket = packet as C_MoveStone;
+            C_SetCard movePacket = packet as C_SetCard;
             ClientSession clientSession = session as ClientSession;
             if (clientSession.Room == null)
                 return;
-            Console.WriteLine($"{movePacket.StonePosition}");
+            Console.WriteLine($"{movePacket}");
             
             GameRoom room = clientSession.Room;
-            room.Move(clientSession, movePacket);
+            room.SetCardData(clientSession, movePacket);
 
             //GameRoom room = clientSession.Room;
             //room.Leave(clientSession);

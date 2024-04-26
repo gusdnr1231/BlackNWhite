@@ -1,5 +1,4 @@
 using DummyClient;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,6 +48,8 @@ public class InGame : MonoBehaviour
 	[SerializeField] private Image OtherSetCard;
 	[SerializeField] private Image PlayerSetCardImage;
 	[SerializeField] private TextMeshProUGUI PlayerSetCardText;
+	[SerializeField] private TextMeshProUGUI LocalWinCount;
+	[SerializeField] private TextMeshProUGUI RemoteWinCount;
 
 	public List<Sprite> FCardImages;
 	public List<Sprite> BCardImages;
@@ -171,14 +172,15 @@ public class InGame : MonoBehaviour
 		if (currentTime > WaitTime)
 		{
 			// 게임 시작입니다.
+			TurnCount = 0;
 			progress = GameProgress.StartRound;
 		}
+
 	}
 
 	private void UpdateRound()
 	{
 		RoundCount = RoundCount + 1;
-		TurnCount = 0;
 		turn = before;
 
 		PlayerSetCardImage.sprite = OCardImages[pBeforeColor];
@@ -213,6 +215,10 @@ public class InGame : MonoBehaviour
 				SetClient = DoOppnentTurn();  // 상대턴 입력
 			}
 		}
+		else if (TurnCount == 2)
+		{
+			progress = GameProgress.EndRound;
+		}
 
 		if (SetClient == false)
 		{
@@ -223,23 +229,9 @@ public class InGame : MonoBehaviour
 			// 카드가 놓이는 사운드 효과를 냅니다. 
 		}
 
-		if (winner != Winner.None)
-		{
-			//승리한 경우는 사운드효과를 냅니다.
-			if ((winner == Winner.Own && local == ClientType.Local)
-				|| (winner == Winner.Opponent && local == ClientType.Remote))
-			{
-				//승리한 클라이언트에 점수 추가하는 함수 실행
-			}
-			progress = GameProgress.Result;
-		}
-
 		// 턴을 갱신합니다.
 		Debug.Log($"라운드 갱신 :{turn}");
-		if (TurnCount == 2)
-		{
-			progress = GameProgress.EndRound;
-		}
+
 	}
 
 	private void UpdateData()
@@ -250,12 +242,28 @@ public class InGame : MonoBehaviour
 		if (ClientNum > RemoteNum || (ClientNum == 0 && RemoteNum == 7))
 		{
 			localWin = localWin + 1;
+			LocalWinCount.text = localWin.ToString();
 		}
 		if(RemoteNum > ClientNum || (ClientNum == 7 && RemoteNum == 0))
 		{
 			remoteWin = remoteWin + 1;
+			RemoteWinCount.text = remoteWin.ToString();
 		}
+
+		if (winner != Winner.None)
+		{
+			//승리한 경우는 사운드효과를 냅니다.
+			if ((winner == Winner.Own && local == ClientType.Local)
+				|| (winner == Winner.Opponent && local == ClientType.Remote))
+			{
+				//승리한 클라이언트에 점수 추가하는 함수 실행
+
+			}
+			progress = GameProgress.Result;
+		}
+
 		// brfore을 해당 라운드 승리자로 바꿔줄 것
+		TurnCount = 0;
 		progress = GameProgress.StartRound;
 	}
 
@@ -273,21 +281,21 @@ public class InGame : MonoBehaviour
 	// 자신의 턴일 때의 처리
 	public bool DoOwnTurn()
 	{
-		int index = 0;
-		if (!isFirst)
+		int index = -1;
+		if (isFirst == false) index = PlayerManager.Instance.ReturnCardColor();
+
+		if (index != -1)
 		{
-			index = PlayerManager.Instance.ReturnCardColor();
 			OtherSetCard.sprite = BCardImages[index];
 			Debug.Log($"DoOppnentTurn, index:{index}");
-
-			if (index <= 0)
-			{
-				Debug.Log($"수신된 값 : {index}");
-				return false;
-			}
+		}
+		else if (index == -1)
+		{
+			Debug.Log($"수신된 값 : {index}");
+			return false;
 		}
 
-		PlayerManager.Instance._myPlayer.ShowHand();
+		if(PlayerManager.Instance._myPlayer.IsShowingHand == false) PlayerManager.Instance._myPlayer.ShowHand();
 
 		RemainTime -= Time.deltaTime;
 		if (RemainTime <= 0.0f)
@@ -312,11 +320,13 @@ public class InGame : MonoBehaviour
 			else if (pBeforeColor == 0) PlayerSetCardText.color = Vector4.one;
 		}
 
-		C_MoveStone movePacket = new C_MoveStone();
-		if (local == ClientType.Local) ;
+		C_SetCard setPacket = new C_SetCard();
+		if (local == ClientType.Local)
+			setPacket.destinationId = (int)ClientType.Local + 1;
 		else;
+			setPacket.destinationId = (int)ClientType.Remote + 1;
 
-		network.Send(movePacket.Write());
+		network.Send(setPacket.Write());
 
 		TurnCount = TurnCount + 1;
 		return true;
@@ -325,21 +335,21 @@ public class InGame : MonoBehaviour
 	// 상대의 턴일 때의 처리.
 	public bool DoOppnentTurn()
 	{
-		int index = 0;
-		index = PlayerManager.Instance.ReturnCardColor();
-		OtherSetCard.sprite = BCardImages[index];
-		Debug.Log($"DoOppnentTurn, index:{index}");
-
-		if (index <= 0)
+		int index = -1;
+		if(isFirst == false) index = PlayerManager.Instance.ReturnCardColor();
+		if(index != -1)
+		{
+			OtherSetCard.sprite = BCardImages[index];
+			Debug.Log($"DoOppnentTurn, index:{index}");
+		}
+		else if (index == -1)
 		{
 			Debug.Log($"수신된 값 : {index}");
 			return false;
 		}
 
 		PlayerManager.Instance._myPlayer.ShowHand(false);
-		ClientType thisClient = (network.IsServer() == true) ? ClientType.Remote : ClientType.Local;
 		Debug.Log("수신");
-
 		Debug.Log("Recv:" + index + " [" + network.IsServer() + "]");
 
 		TurnCount = TurnCount + 1;
@@ -348,11 +358,11 @@ public class InGame : MonoBehaviour
 
 	private void ResetGame()
 	{
-		//turn = Turn.Own;
 		turn = ClientType.Local;
 		progress = GameProgress.None;
 		StepCount = 0f;
 		RoundCount = 0;
+		TurnCount = 0;
 
 		localWin = 0;
 		remoteWin = 0;

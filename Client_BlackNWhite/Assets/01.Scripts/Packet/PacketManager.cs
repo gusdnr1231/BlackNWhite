@@ -33,8 +33,8 @@ namespace DummyClient {
             _makeFunc.Add((ushort)PacketID.S_PlayerList, MakePacket<S_PlayerList>);
             _handler.Add((ushort)PacketID.S_PlayerList, PacketHandler.S_PlayerListHandler);
 
-            _makeFunc.Add((ushort)PacketID.S_BroadCastStone, MakePacket<S_BroadCastStone>);
-            _handler.Add((ushort)PacketID.S_BroadCastStone, PacketHandler.S_BroadCastStoneHandler);
+            _makeFunc.Add((ushort)PacketID.S_BroadCastRound, MakePacket<S_BroadCastRound>);
+            _handler.Add((ushort)PacketID.S_BroadCastRound, PacketHandler.S_BroadCastRoundHandler);
         }
 
         public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer

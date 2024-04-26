@@ -13,7 +13,7 @@ public struct CardData
 
 public class Card : MonoBehaviour
 {
-	private Player Owner;
+	private MyPlayer Owner;
 
 	private Image CardImage;
 	private TextMeshProUGUI CardText;
@@ -27,7 +27,7 @@ public class Card : MonoBehaviour
 		CardText = GetComponentInChildren<TextMeshProUGUI>();
 	}
 
-	public void SettingOwner(Player owner)
+	public void SettingOwner(MyPlayer owner)
 	{
 		Owner = owner;
 	}
@@ -53,6 +53,7 @@ public class Card : MonoBehaviour
 		{
 			Owner.SetCard(Data);
 			Owner.Cards.Remove(this);
+			Owner.IsSetCard = true;
 			Destroy(gameObject);
 		}
 	}

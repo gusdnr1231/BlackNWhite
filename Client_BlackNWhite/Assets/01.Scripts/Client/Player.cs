@@ -21,7 +21,6 @@ public class Player : MonoBehaviour
 	{
 		CardNum = data.Number;
 		CardColor = data.Color;
-		IsSetCard = true;
 
 		Debug.Log($"Card Data: {CardNum} / {CardColor}");
 	}

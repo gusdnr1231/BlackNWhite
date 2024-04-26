@@ -12,16 +12,18 @@ namespace Server
         List<ClientSession> _sessions = new List<ClientSession>();
         object _lock = new object();
 
-        public void Move(ClientSession session, C_MoveStone packet)
+        public void SetCardData(ClientSession session, C_SetCard packet)
         {
             lock (_lock)
             {
                 // 돌 받고
-                session.StonePosition = packet.StonePosition;
+                session.SetCardNumber = packet.selectNum;
+                session.SetCardColor = packet.selectCol;
 
                 // 모두에게 알림
-                S_BroadCastStone move = new S_BroadCastStone();
-                move.StonePosition = session.StonePosition+1;
+                S_SetOtherCard move = new S_SetOtherCard();
+                move.selectNum = packet.selectNum;
+                move.selectCol = packet.selectCol;
                 BroadCast(move.Write());
 
             }

@@ -6,6 +6,7 @@ public class MyPlayer : Player
 {
 	NetworkManager _network;
 
+	public bool IsShowingHand { get; private set;}
 	public GameObject CardPrefab;
 	public RectTransform CardContainer;
 
@@ -23,7 +24,8 @@ public class MyPlayer : Player
 	{
 		GameObject playerHand = CardContainer.gameObject;
 		playerHand.SetActive(isActive);
-		IsSetCard = false;
+		IsShowingHand = isActive;
+		if(isActive == true) IsSetCard = false;
 	}
 
 	public void SettingCardHand()
@@ -52,6 +54,8 @@ public class MyPlayer : Player
 			card.SetData(i, SetCardColor(i));
 			Cards.Add(card);
 		}
+
+		IsSetCard = false;
 	}
 
 	private int SetCardColor(int num)

@@ -123,6 +123,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &83192385
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 83192386}
+  m_Layer: 0
+  m_Name: PlayerManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &83192386
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 83192385}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 337318558}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &149733859
 GameObject:
   m_ObjectHideFlags: 0
@@ -1956,6 +1987,7 @@ Transform:
   - {fileID: 1907558597}
   - {fileID: 968532224}
   - {fileID: 679457384}
+  - {fileID: 83192386}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &514219880
@@ -2376,6 +2408,8 @@ MonoBehaviour:
   OtherSetCard: {fileID: 1124477056}
   PlayerSetCardImage: {fileID: 1004425723}
   PlayerSetCardText: {fileID: 1602451060}
+  LocalWinCount: {fileID: 0}
+  WinCount: {fileID: 0}
   FCardImages:
   - {fileID: 1853841036, guid: 29c7bcecbab40b84c88ed82800019f3a, type: 3}
   - {fileID: 24304622, guid: 29c7bcecbab40b84c88ed82800019f3a, type: 3}
@@ -2688,7 +2722,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Cards: []
   CardPrefab: {fileID: 997689010122271912, guid: 2fbec9303026ea24596d54eb9f5094ed, type: 3}
-  CardContainer: {fileID: 0}
+  CardContainer: {fileID: 697475793}
 --- !u!1 &1528333141
 GameObject:
   m_ObjectHideFlags: 0
@@ -2701,7 +2735,7 @@ GameObject:
   - component: {fileID: 1528333144}
   - component: {fileID: 1528333143}
   m_Layer: 5
-  m_Name: PlayerWin
+  m_Name: PlayerWinCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2757,8 +2791,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4294913536
+  m_fontColor: {r: 0, g: 0.1815064, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3072,8 +3106,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190335
+  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
