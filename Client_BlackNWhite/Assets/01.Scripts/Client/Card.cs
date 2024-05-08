@@ -54,6 +54,7 @@ public class Card : MonoBehaviour
 			Owner.SetCard(Data);
 			Owner.Cards.Remove(this);
 			Owner.IsSetCard = true;
+			Owner.ShowHand(false);
 			Destroy(gameObject);
 		}
 	}
