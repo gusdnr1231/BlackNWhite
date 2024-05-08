@@ -10,11 +10,6 @@ public class MyPlayer : Player
 	public GameObject CardPrefab;
 	public RectTransform CardContainer;
 
-	private void Awake()
-	{
-		CardContainer = GameObject.Find("PlayerCardContainer").GetComponent<RectTransform>();
-	}
-
 	private void Start()
 	{
 		SettingCardHand();
@@ -22,8 +17,11 @@ public class MyPlayer : Player
 
 	public void ShowHand(bool isActive = true)
 	{
-		GameObject playerHand = CardContainer.gameObject;
-		playerHand.SetActive(isActive);
+		Debug.Log($"Player Hand : {isActive}");
+		foreach(var card in Cards)
+		{
+			card.gameObject.SetActive(isActive);
+		}
 		IsShowingHand = isActive;
 		if(isActive == true) IsSetCard = false;
 	}

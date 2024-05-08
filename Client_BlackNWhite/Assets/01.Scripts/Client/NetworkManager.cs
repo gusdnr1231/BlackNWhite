@@ -78,7 +78,6 @@ public class NetworkManager : MonoBehaviour
 		return true;
 	}
 
-
 	// 서버인지 확인.
 	public bool IsServer()
 	{

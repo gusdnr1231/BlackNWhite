@@ -33,8 +33,9 @@ namespace DummyClient {
             _makeFunc.Add((ushort)PacketID.S_PlayerList, MakePacket<S_PlayerList>);
             _handler.Add((ushort)PacketID.S_PlayerList, PacketHandler.S_PlayerListHandler);
 
-            _makeFunc.Add((ushort)PacketID.S_BroadCastRound, MakePacket<S_BroadCastRound>);
-            _handler.Add((ushort)PacketID.S_BroadCastRound, PacketHandler.S_BroadCastRoundHandler);
+            //타 플레이어 카드 깔기
+            _makeFunc.Add((ushort)PacketID.S_SetOtherCard, MakePacket<S_SetOtherCard>);
+            _handler.Add((ushort)PacketID.S_SetOtherCard, PacketHandler.S_SetOtherCardHandler);
         }
 
         public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer

@@ -16,7 +16,7 @@ namespace DummyClient
 
         C_SetCard = 5,
 		S_SetOtherCard = 6,
-        S_BroadCastRound = 7,
+        //S_BroadCastRound = 7,
     }
 
     public interface IPacket
@@ -103,7 +103,7 @@ namespace DummyClient
 		}
 	}
 
-	public class S_BroadCastRound : IPacket
+	/*public class S_BroadCastRound : IPacket
     {
         public int IsWin;
         public ushort Protocol { get { return (ushort)PacketID.S_BroadCastRound; } }
@@ -132,7 +132,7 @@ namespace DummyClient
 
             return SendBufferHelper.Close(count);
         }
-    }
+    }*/
 
     public class S_BroadcastEnterGame : IPacket
     {

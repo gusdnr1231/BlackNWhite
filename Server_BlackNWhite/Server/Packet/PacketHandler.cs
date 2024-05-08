@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Server {
     class PacketHandler 
     {
-        // 돌 놓는거
+        // 카드 놓는거
         public static void C_SetCardHandler(PacketSession session, IPacket packet)
         {
             C_SetCard movePacket = packet as C_SetCard;
@@ -20,9 +20,6 @@ namespace Server {
             
             GameRoom room = clientSession.Room;
             room.SetCardData(clientSession, movePacket);
-
-            //GameRoom room = clientSession.Room;
-            //room.Leave(clientSession);
         }
 
         // 클라가 떠났을 때, room에서 내쫓는 동작

@@ -51,6 +51,8 @@ public class SequenceManager : MonoBehaviour
 		hostType = HostType.None;
 		m_mode = Mode.Disconnection;
 
+		PlayerManager.Instance._myPlayer.SettingCardHand();
+
 		UI_MainMenu.SetActive(true);
 		UI_Game.SetActive(false);
 	}

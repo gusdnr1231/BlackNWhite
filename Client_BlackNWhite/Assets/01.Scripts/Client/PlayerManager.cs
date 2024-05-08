@@ -2,7 +2,6 @@ using DummyClient;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static DummyClient.S_PlayerList;
 
 public class PlayerManager
 {
@@ -49,14 +48,14 @@ public class PlayerManager
 		foreach (S_PlayerList.Player p in packet.players)
 		{
 			GameObject go = Object.Instantiate(obj) as GameObject;
-
 			if (p.isSelf)
 			{
 				MyPlayer myPlayer = go.AddComponent<MyPlayer>();
 				myPlayer.PlayerID = p.playerId;
 				myPlayer.CardNum = -1;
 				myPlayer.CardColor = -1;
-				myPlayer.transform.position = new Vector3(0, -1, 0);
+				myPlayer.transform.position = new Vector3(0, 0, 0);
+				myPlayer.CardContainer = GameObject.Find("PlayerCardContainer").GetComponent<RectTransform>();
 				myPlayer.SettingCardHand();
 				myPlayer.ShowHand();
 				_myPlayer = myPlayer;
@@ -67,6 +66,8 @@ public class PlayerManager
 				player.PlayerID = p.playerId;
 				player.CardNum = -1;
 				player.CardColor = -1;
+				player.IsSetCard = false;
+				player.Cards = new List<Card>();
 				player.transform.position = new Vector3(0, 1, 0);
 				_players.Add(p.playerId, player);
 			}

@@ -13,6 +13,7 @@ namespace DummyClient
             S_BroadcastEnterGame pkt = packet as S_BroadcastEnterGame;
             ServerSession serverSession = session as ServerSession;
 
+            PlayerManager.Instance.EnterGame(pkt);
         }
 
         // 플레이어 퇴장 신호 보내기
@@ -21,6 +22,7 @@ namespace DummyClient
             S_BroadcastLeaveGame pkt = packet as S_BroadcastLeaveGame;
             ServerSession serverSession = session as ServerSession;
 
+            PlayerManager.Instance.LeaveGame(pkt);
         }
 
         // 현재 플레이어 리스트
@@ -29,6 +31,7 @@ namespace DummyClient
             S_PlayerList pkt = packet as S_PlayerList;
             ServerSession serverSession = session as ServerSession;
 
+            PlayerManager.Instance.Add(pkt);
         }
 
 		public static void S_SetOtherCardHandler(PacketSession session, IPacket packet)
@@ -39,13 +42,11 @@ namespace DummyClient
             PlayerManager.Instance.SetCard(pkt);
 		}
 
-		public static void S_BroadCastRoundHandler(PacketSession session, IPacket packet)
+		/*public static void S_BroadCastRoundHandler(PacketSession session, IPacket packet)
         {
             S_BroadCastRound pkt = packet as S_BroadCastRound;
             ServerSession serverSession = session as ServerSession;
-
-            
-        }
+        }*/
 
 	}
 }

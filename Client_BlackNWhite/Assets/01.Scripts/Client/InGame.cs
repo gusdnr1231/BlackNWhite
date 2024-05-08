@@ -205,7 +205,7 @@ public class InGame : MonoBehaviour
 		else if (TurnCount == 1)
 		{
 			isFirst = false;
-			turn = (turn == ClientType.Local) ? ClientType.Remote : ClientType.Local;
+			turn = (before == ClientType.Local) ? ClientType.Remote : ClientType.Local;
 			if (turn == local)
 			{
 				SetClient = DoOwnTurn();  // 내턴 입력
@@ -242,12 +242,26 @@ public class InGame : MonoBehaviour
 		if (ClientNum > RemoteNum || (ClientNum == 0 && RemoteNum == 7))
 		{
 			localWin = localWin + 1;
+			before = local;
 			LocalWinCount.text = localWin.ToString();
+			ProgressText.text = "Blue Win";
 		}
-		if(RemoteNum > ClientNum || (ClientNum == 7 && RemoteNum == 0))
+		else if(RemoteNum > ClientNum || (ClientNum == 7 && RemoteNum == 0))
 		{
 			remoteWin = remoteWin + 1;
+			before = remote;
 			RemoteWinCount.text = remoteWin.ToString();
+			ProgressText.text = "Red Win";
+		}
+		else if(ClientNum == RemoteNum)
+		{
+			ProgressText.text = "Draw";
+		}
+
+		if(localWin <= 4)
+		{
+			if(local == ClientType.Local) winner = Winner.Own;
+			if(local == ClientType.Remote) winner = Winner.Opponent;
 		}
 
 		if (winner != Winner.None)
@@ -262,7 +276,6 @@ public class InGame : MonoBehaviour
 			progress = GameProgress.Result;
 		}
 
-		// brfore을 해당 라운드 승리자로 바꿔줄 것
 		TurnCount = 0;
 		progress = GameProgress.StartRound;
 	}
@@ -291,9 +304,9 @@ public class InGame : MonoBehaviour
 		}
 		else if (index == -1)
 		{
-			Debug.Log($"수신된 값 : {index}");
-			return false;
+			Debug.Log($"선 턴 실행");
 		}
+		ProgressText.text = "Blue's Turn";
 
 		if(PlayerManager.Instance._myPlayer.IsShowingHand == false) PlayerManager.Instance._myPlayer.ShowHand();
 
@@ -323,7 +336,7 @@ public class InGame : MonoBehaviour
 		C_SetCard setPacket = new C_SetCard();
 		if (local == ClientType.Local)
 			setPacket.destinationId = (int)ClientType.Local + 1;
-		else;
+		else
 			setPacket.destinationId = (int)ClientType.Remote + 1;
 
 		network.Send(setPacket.Write());
@@ -337,18 +350,18 @@ public class InGame : MonoBehaviour
 	{
 		int index = -1;
 		if(isFirst == false) index = PlayerManager.Instance.ReturnCardColor();
-		if(index != -1)
+
+		if (index != -1)
 		{
 			OtherSetCard.sprite = BCardImages[index];
 			Debug.Log($"DoOppnentTurn, index:{index}");
 		}
 		else if (index == -1)
 		{
-			Debug.Log($"수신된 값 : {index}");
-			return false;
+			Debug.Log($"선턴 실행");
 		}
+		ProgressText.text = "Red's Turn";
 
-		PlayerManager.Instance._myPlayer.ShowHand(false);
 		Debug.Log("수신");
 		Debug.Log("Recv:" + index + " [" + network.IsServer() + "]");
 
