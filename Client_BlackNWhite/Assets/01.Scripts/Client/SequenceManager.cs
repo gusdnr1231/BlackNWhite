@@ -49,9 +49,7 @@ public class SequenceManager : MonoBehaviour
 	public void OnClick_Exit()
 	{
 		hostType = HostType.None;
-		m_mode = Mode.Disconnection;
-
-		PlayerManager.Instance._myPlayer.SettingCardHand();
+		m_mode = Mode.SelectHost;
 
 		UI_MainMenu.SetActive(true);
 		UI_Game.SetActive(false);

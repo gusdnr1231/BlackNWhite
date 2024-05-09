@@ -67,7 +67,7 @@ public class InGame : MonoBehaviour
 	// 턴 진행시 대기 시간 할당용 변수
 	private float RemainTime = 0f;
 	// 시합 시작 전의 신호표시 시간.
-	private const float WaitTime = 50.0f;
+	private const float WaitTime = 10.0f;
 	// 대기 시간.
 	private const float TurnTime = 30.0f;
 	#endregion
@@ -156,11 +156,13 @@ public class InGame : MonoBehaviour
 
 		pBeforeColor = 0;
 		oBeforeColor = 0;
-
-		Debug.Log($"This Client Type : {local.ToString()}");
+		
+		localWin = 0;
+		remoteWin = 0;
 
 		isGameOver = false;
 		winner = Winner.None;
+
 	}
 
 	private void UpdateReady()
@@ -308,6 +310,8 @@ public class InGame : MonoBehaviour
 		}
 		ProgressText.text = "Blue's Turn";
 
+		Debug.Assert(PlayerManager.Instance != null, "PlayerManager Is Null");
+		Debug.Assert(PlayerManager.Instance._myPlayer != null, "PlayerManager's My Player is Null");
 		if(PlayerManager.Instance._myPlayer.IsShowingHand == false) PlayerManager.Instance._myPlayer.ShowHand();
 
 		RemainTime -= Time.deltaTime;
