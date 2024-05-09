@@ -260,7 +260,7 @@ public class InGame : MonoBehaviour
 			ProgressText.text = "Draw";
 		}
 
-		if(localWin <= 4)
+		if(localWin <= 5)
 		{
 			if(local == ClientType.Local) winner = Winner.Own;
 			if(local == ClientType.Remote) winner = Winner.Opponent;
