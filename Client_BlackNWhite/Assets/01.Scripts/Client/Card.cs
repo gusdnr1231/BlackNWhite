@@ -16,6 +16,7 @@ public class Card : MonoBehaviour
 	private MyPlayer Owner;
 
 	private Image CardImage;
+	private Button CardButton;
 	private TextMeshProUGUI CardText;
 
 	public CardData Data;
@@ -24,12 +25,18 @@ public class Card : MonoBehaviour
 	private void Awake()
 	{
 		CardImage = GetComponentInChildren<Image>();
+		CardButton = GetComponentInChildren<Button>();
 		CardText = GetComponentInChildren<TextMeshProUGUI>();
 	}
 
 	public void SettingOwner(MyPlayer owner)
 	{
 		Owner = owner;
+	}
+
+	public void SettingInteraction(bool isInteraction)
+	{
+		CardButton.interactable = isInteraction;
 	}
 
 	public void SetData(int number, int color)
@@ -51,10 +58,11 @@ public class Card : MonoBehaviour
 	{
 		if (Owner.IsSetCard == false)
 		{
+			Owner.IsSetCard = true;
 			Owner.SetCard(Data);
 			Owner.Cards.Remove(this);
-			Owner.IsSetCard = true;
 			Owner.ShowHand(false);
+			Owner.SettingHandInteraction(false);
 			Destroy(gameObject);
 		}
 	}

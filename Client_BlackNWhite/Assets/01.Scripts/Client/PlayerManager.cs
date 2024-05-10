@@ -11,7 +11,7 @@ public class PlayerManager
 	public int OtherCardColor { get; set; }
 	public int OtherCardNumber { get; set; }
 
-	Dictionary<int, Player> _players = new Dictionary<int, Player>();
+	public Dictionary<int, Player> _players = new Dictionary<int, Player>();
 
 	public void SetCard(S_SetOtherCard cardData)
 	{
@@ -52,14 +52,14 @@ public class PlayerManager
 
 			if (p.isSelf)
 			{
-				_myPlayer = go.AddComponent<MyPlayer>();
+				go.AddComponent<MyPlayer>();
+				_myPlayer = go.GetComponent<MyPlayer>();
 				_myPlayer.PlayerID = p.playerId;
 				_myPlayer.CardNum = -1;
 				_myPlayer.CardColor = -1;
 				_myPlayer.transform.position = new Vector3(0, 0, 0);
+				_myPlayer.CardPrefab = Resources.Load("Card_UI") as GameObject;
 				_myPlayer.CardContainer = GameObject.Find("PlayerCardContainer").GetComponent<RectTransform>();
-				_myPlayer.SettingCardHand();
-				_myPlayer.ShowHand();
 			}
 			else
 			{
@@ -78,21 +78,14 @@ public class PlayerManager
 	// 나 혹은 누군가가 새로 접속했을 때
 	public void EnterGame(S_BroadcastEnterGame packet)
 	{
-		Object obj = Resources.Load("Player");
-		GameObject go = Object.Instantiate(obj) as GameObject;
-
 		if (packet.playerId == _myPlayer.PlayerID)
 		{
-			_myPlayer = go.AddComponent<MyPlayer>();
-			_myPlayer.CardNum = -1;
-			_myPlayer.CardColor = -1;
-			_myPlayer.transform.position = new Vector3(0, 0, 0);
-			_myPlayer.CardContainer = GameObject.Find("PlayerCardContainer").GetComponent<RectTransform>();
-			_myPlayer.SettingCardHand();
-			_myPlayer.ShowHand();
+			return;
 		}
 		else
 		{
+			Object obj = Resources.Load("Player");
+			GameObject go = Object.Instantiate(obj) as GameObject;
 			Player player = go.AddComponent<Player>();
 			_players.Add(packet.playerId, player);
 		}

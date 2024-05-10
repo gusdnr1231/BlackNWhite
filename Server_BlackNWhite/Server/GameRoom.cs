@@ -20,12 +20,18 @@ namespace Server
                 session.SetCardNumber = packet.selectNum;
                 session.SetCardColor = packet.selectCol;
 
-                // 모두에게 알림
-                S_SetOtherCard move = new S_SetOtherCard();
-                move.selectNum = packet.selectNum;
-                move.selectCol = packet.selectCol;
-                BroadCast(move.Write());
+                foreach(ClientSession s in _sessions)
+                {
+                    if(s.SessionId == packet.destinationId)
+                    {
+                        Console.WriteLine($"Find Destination Session : ID {packet.destinationId}");
 
+						S_SetOtherCard SSet = new S_SetOtherCard();
+						SSet.selectNum = packet.selectNum;
+						SSet.selectCol = packet.selectCol;
+                        s.Send(SSet.Write());
+					}
+                }
             }
         }
 

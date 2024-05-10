@@ -45,7 +45,7 @@ public class InGame : MonoBehaviour
 
 	#region UI Variables
 	[SerializeField] private TextMeshProUGUI ProgressText;
-	[SerializeField] private Image OtherSetCard;
+	[SerializeField] private Image OtherSetCardImage;
 	[SerializeField] private Image PlayerSetCardImage;
 	[SerializeField] private TextMeshProUGUI PlayerSetCardText;
 	[SerializeField] private TextMeshProUGUI LocalWinCount;
@@ -168,9 +168,13 @@ public class InGame : MonoBehaviour
 	private void UpdateReady()
 	{
 		// 시합 시작 신호 표시를 기다립니다.
-		currentTime += Time.deltaTime;
 		ProgressText.text = "Waiting to Start";
-
+		//PlayerManager.Instance._myPlayer.SettingHandInteraction(false);
+		if(PlayerManager.Instance._players.Count != 0) currentTime += Time.deltaTime;
+		/*if(PlayerManager.Instance._myPlayer.IsCardInteraction == true)
+		{
+			
+		}*/
 		if (currentTime > WaitTime)
 		{
 			// 게임 시작입니다.
@@ -186,7 +190,7 @@ public class InGame : MonoBehaviour
 		turn = before;
 
 		PlayerSetCardImage.sprite = OCardImages[pBeforeColor];
-		OtherSetCard.sprite = OCardImages[oBeforeColor];
+		OtherSetCardImage.sprite = OCardImages[oBeforeColor];
 
 		RemainTime = TurnTime;
 		ProgressText.text = $"Start Round : {RoundCount}";
@@ -241,26 +245,31 @@ public class InGame : MonoBehaviour
 		// 각 클라이언트 별 숫자 받고, 대조해 라운드 승리자 조회
 		int ClientNum = PlayerManager.Instance.ReturnPlayerCard().Number;
 		int RemoteNum = PlayerManager.Instance.ReturnCardNumber();
-		if (ClientNum > RemoteNum || (ClientNum == 0 && RemoteNum == 7))
+		if (ClientNum > RemoteNum || (ClientNum == 0 && RemoteNum == 8))
 		{
 			localWin = localWin + 1;
 			before = local;
 			LocalWinCount.text = localWin.ToString();
-			ProgressText.text = "Blue Win";
+			ProgressText.text = "You Win";
 		}
-		else if(RemoteNum > ClientNum || (ClientNum == 7 && RemoteNum == 0))
+		else if(RemoteNum > ClientNum || (ClientNum == 8 && RemoteNum == 0))
 		{
 			remoteWin = remoteWin + 1;
 			before = remote;
 			RemoteWinCount.text = remoteWin.ToString();
-			ProgressText.text = "Red Win";
+			ProgressText.text = "Enemy Win";
 		}
 		else if(ClientNum == RemoteNum)
 		{
 			ProgressText.text = "Draw";
+			remoteWin = remoteWin + 1;
+			localWin = localWin + 1;
+			LocalWinCount.text = localWin.ToString();
+			RemoteWinCount.text = remoteWin.ToString();
+			before = Random.Range(0, 10) / 5 == 1 ? local : remote;
 		}
 
-		if(localWin <= 5)
+		if(localWin >= 5)
 		{
 			if(local == ClientType.Local) winner = Winner.Own;
 			if(local == ClientType.Remote) winner = Winner.Opponent;
@@ -301,19 +310,22 @@ public class InGame : MonoBehaviour
 
 		if (index != -1)
 		{
-			OtherSetCard.sprite = BCardImages[index];
+			OtherSetCardImage.sprite = BCardImages[index];
 			Debug.Log($"DoOppnentTurn, index:{index}");
 		}
 		else if (index == -1)
 		{
 			Debug.Log($"선 턴 실행");
 		}
-		ProgressText.text = "Blue's Turn";
+		ProgressText.text = "Your Turn";
 
 		Debug.Assert(PlayerManager.Instance != null, "PlayerManager Is Null");
 		Debug.Assert(PlayerManager.Instance._myPlayer != null, "PlayerManager's My Player is Null");
-		if(PlayerManager.Instance._myPlayer.IsShowingHand == false) PlayerManager.Instance._myPlayer.ShowHand();
-
+		if(PlayerManager.Instance._myPlayer.IsShowingHand == false)
+		{
+			PlayerManager.Instance._myPlayer.ShowHand();
+			PlayerManager.Instance._myPlayer.SettingHandInteraction(true);
+		}
 		RemainTime -= Time.deltaTime;
 		if (RemainTime <= 0.0f)
 		{
@@ -342,8 +354,12 @@ public class InGame : MonoBehaviour
 			setPacket.destinationId = (int)ClientType.Local + 1;
 		else
 			setPacket.destinationId = (int)ClientType.Remote + 1;
-
+		setPacket.selectNum = PlayerManager.Instance.ReturnPlayerCard().Number;
+		setPacket.selectCol = PlayerManager.Instance.ReturnPlayerCard().Color;
 		network.Send(setPacket.Write());
+
+		PlayerSetCardImage.sprite = FCardImages[PlayerManager.Instance.ReturnPlayerCard().Color];
+		PlayerSetCardText.text = $"{PlayerManager.Instance.ReturnPlayerCard().Number}";
 
 		TurnCount = TurnCount + 1;
 		return true;
@@ -357,17 +373,24 @@ public class InGame : MonoBehaviour
 
 		if (index != -1)
 		{
-			OtherSetCard.sprite = BCardImages[index];
+			OtherSetCardImage.sprite = BCardImages[index];
 			Debug.Log($"DoOppnentTurn, index:{index}");
 		}
 		else if (index == -1)
 		{
 			Debug.Log($"선턴 실행");
 		}
-		ProgressText.text = "Red's Turn";
+		ProgressText.text = "Enemy's Turn";
+
+		if(PlayerManager.Instance.OtherCardColor == -1 && PlayerManager.Instance.OtherCardNumber == -1)
+		{
+			return false;
+		}
 
 		Debug.Log("수신");
 		Debug.Log("Recv:" + index + " [" + network.IsServer() + "]");
+		Debug.Log($"Other Data: Color {PlayerManager.Instance.OtherCardColor} Number {PlayerManager.Instance.OtherCardNumber}");
+		OtherSetCardImage.sprite = BCardImages[index];
 
 		TurnCount = TurnCount + 1;
 		return true;
@@ -380,7 +403,7 @@ public class InGame : MonoBehaviour
 		StepCount = 0f;
 		RoundCount = 0;
 		TurnCount = 0;
-
+		currentTime = 0;
 		localWin = 0;
 		remoteWin = 0;
 	}

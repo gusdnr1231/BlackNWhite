@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
 
 	public List<Card> Cards;
 
+
 	private void Start()
 	{
 		CardNum = 0;

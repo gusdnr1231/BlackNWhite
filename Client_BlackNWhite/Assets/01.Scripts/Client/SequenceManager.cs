@@ -51,6 +51,7 @@ public class SequenceManager : MonoBehaviour
 		hostType = HostType.None;
 		m_mode = Mode.SelectHost;
 
+		PlayerManager.Instance._myPlayer.ResetCard();
 		UI_MainMenu.SetActive(true);
 		UI_Game.SetActive(false);
 	}
