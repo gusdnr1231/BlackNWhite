@@ -170,7 +170,6 @@ public class InGame : MonoBehaviour
 	{
 		// 시합 시작 신호 표시를 기다립니다.
 		ProgressText.text = "Waiting to Start";
-		//PlayerManager.Instance._myPlayer.SettingHandInteraction(false);
 		if(PlayerManager.Instance._players.Count != 0) currentTime += Time.deltaTime;
 		
 		if (currentTime > WaitTime)
@@ -313,7 +312,6 @@ public class InGame : MonoBehaviour
 	{
 		int index = -1;
 		if (isFirst == false) index = PlayerManager.Instance.ReturnCardColor();
-
 		if (index != -1)
 		{
 			OtherSetCardImage.sprite = BCardImages[index];
@@ -366,7 +364,8 @@ public class InGame : MonoBehaviour
 
 		PlayerSetCardImage.sprite = FCardImages[PlayerManager.Instance.ReturnPlayerCard().Color];
 		PlayerSetCardText.text = $"{PlayerManager.Instance.ReturnPlayerCard().Number}";
-
+		
+		PlayerManager.Instance._myPlayer.SettingHandInteraction(false);
 		TurnCount = TurnCount + 1;
 		return true;
 	}
@@ -388,7 +387,13 @@ public class InGame : MonoBehaviour
 		}
 		ProgressText.text = "Enemy's Turn";
 
-		if(PlayerManager.Instance.OtherCardColor == -1 && PlayerManager.Instance.OtherCardNumber == -1)
+		PlayerManager.Instance._myPlayer.SettingHandInteraction(false);
+		if (PlayerManager.Instance._myPlayer.IsShowingHand == true)
+		{
+			PlayerManager.Instance._myPlayer.ShowHand(false);
+		}
+
+		if (PlayerManager.Instance.OtherCardColor == -1 && PlayerManager.Instance.OtherCardNumber == -1)
 		{
 			return false;
 		}
