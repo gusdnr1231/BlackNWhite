@@ -47,7 +47,7 @@ public class NetworkManager : MonoBehaviour
 		Debug.Log("서버로 송신!");
 	}
 
-	public bool ConnectToServer(IPAddress ipAddr, int port)
+	public bool ConnectToServer(IPAddress ipAddr, int port, bool IsServer)
 	{
 		try
 		{
@@ -74,7 +74,7 @@ public class NetworkManager : MonoBehaviour
 			Debug.Log("event handler called");
 
 		}
-
+		IsServer = m_isServer;
 		return true;
 	}
 

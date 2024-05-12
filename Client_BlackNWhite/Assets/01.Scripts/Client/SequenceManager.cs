@@ -104,21 +104,19 @@ public class SequenceManager : MonoBehaviour
 		{
 			case HostType.Server:   // 플레이어1
 				{
-					bool ret = network.ConnectToServer(ipAddr, m_port);
+					bool ret = network.ConnectToServer(ipAddr, m_port, true);
 					m_mode = ret ? Mode.Connection : Mode.Error;
 					Debug.Log("HostType Server");
-					network.m_isServer = true;
+					break;
 				}
-				break;
 
 			case HostType.Client:   // 플레이어2
 				{
-					bool ret = network.ConnectToServer(ipAddr, m_port);
+					bool ret = network.ConnectToServer(ipAddr, m_port, false);
 					m_mode = ret ? Mode.Connection : Mode.Error;
 					Debug.Log("HostType Client");
-
+					break;
 				}
-				break;
 
 			default:
 				break;

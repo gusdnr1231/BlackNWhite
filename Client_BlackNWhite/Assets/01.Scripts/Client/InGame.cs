@@ -140,8 +140,6 @@ public class InGame : MonoBehaviour
 	public void GameStart()
 	{
 		progress = GameProgress.Ready;
-		turn = ClientType.Local;
-		before = ClientType.Local;
 
 		if (network.IsServer() == true)
 		{
@@ -153,6 +151,9 @@ public class InGame : MonoBehaviour
 			local = ClientType.Remote;
 			remote = ClientType.Local;
 		}
+
+		turn = ClientType.Local;
+		before = ClientType.Local;
 
 		pBeforeColor = 0;
 		oBeforeColor = 0;
@@ -171,10 +172,7 @@ public class InGame : MonoBehaviour
 		ProgressText.text = "Waiting to Start";
 		//PlayerManager.Instance._myPlayer.SettingHandInteraction(false);
 		if(PlayerManager.Instance._players.Count != 0) currentTime += Time.deltaTime;
-		/*if(PlayerManager.Instance._myPlayer.IsCardInteraction == true)
-		{
-			
-		}*/
+		
 		if (currentTime > WaitTime)
 		{
 			// 게임 시작입니다.
@@ -187,23 +185,24 @@ public class InGame : MonoBehaviour
 	private void UpdateRound()
 	{
 		RoundCount = RoundCount + 1;
-		turn = before;
+		
 
 		PlayerSetCardImage.sprite = OCardImages[pBeforeColor];
 		OtherSetCardImage.sprite = OCardImages[oBeforeColor];
 
 		RemainTime = TurnTime;
 		ProgressText.text = $"Start Round : {RoundCount}";
-		Debug.Log($"{RoundCount}라운드 시작 :{turn}");
 		bool SetClient = false;
 		if (TurnCount == 0)
 		{
+			turn = before;
+			Debug.Log($"{RoundCount}라운드 시작 :{turn}");
 			isFirst = true;
-			if (before == local)
+			if (turn == local)
 			{
 				SetClient = DoOwnTurn();  // 내턴 입력
 			}
-			else if (before == remote)
+			if (turn == remote)
 			{
 				SetClient = DoOppnentTurn();  // 상대턴 입력
 			}
@@ -211,7 +210,7 @@ public class InGame : MonoBehaviour
 		else if (TurnCount == 1)
 		{
 			isFirst = false;
-			turn = (before == ClientType.Local) ? ClientType.Remote : ClientType.Local;
+			turn = (before == local) ? remote : local;
 			if (turn == local)
 			{
 				SetClient = DoOwnTurn();  // 내턴 입력
@@ -266,7 +265,7 @@ public class InGame : MonoBehaviour
 			localWin = localWin + 1;
 			LocalWinCount.text = localWin.ToString();
 			RemoteWinCount.text = remoteWin.ToString();
-			before = Random.Range(0, 10) / 5 == 1 ? local : remote;
+			before = Random.Range(1, 10) / 5 == 1 ? local : remote;
 		}
 
 		if(localWin >= 5)
@@ -274,15 +273,22 @@ public class InGame : MonoBehaviour
 			if(local == ClientType.Local) winner = Winner.Own;
 			if(local == ClientType.Remote) winner = Winner.Opponent;
 		}
+		else if(remoteWin >= 5)
+		{
+			if(local == ClientType.Local) winner = Winner.Opponent;
+			if(local == ClientType.Remote) winner = Winner.Own;
+		}
 
 		if (winner != Winner.None)
 		{
 			//승리한 경우는 사운드효과를 냅니다.
-			if ((winner == Winner.Own && local == ClientType.Local)
-				|| (winner == Winner.Opponent && local == ClientType.Remote))
+			if (winner == Winner.Own)
 			{
-				//승리한 클라이언트에 점수 추가하는 함수 실행
-
+				ProgressText.text = "You Win!!!";
+			}
+			else if(winner == Winner.Opponent)
+			{
+				ProgressText.text = "You Lose...";
 			}
 			progress = GameProgress.Result;
 		}
